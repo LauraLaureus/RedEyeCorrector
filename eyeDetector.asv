@@ -6,14 +6,19 @@ FDetector = vision.CascadeObjectDetector;
 imshow(I);
 
 faces = step(FDetector,I);
-
+disk = strel('disk',2);
 hold on;
 
 for i = 1:size(faces,1)
     %rectangle('Position',faces(i,:));
     face = imcrop(I,faces(i,:));
     eyesRegion = imcrop(face,calculateFrecuentEyeRegion(face));
-    figure,imshow(eyesRegion);
-    rednessImg = uint(redness(eyesRegion));
-    figure,imshow(rednessImg);
+    eyesRegionG = imgaussfilt(eyesRegion,1);
+    mask = removeSkin(eyesRegionG);
+    %figure,imshow(mask);
+    skinSegmentation = applyMask(double(eyesRegion),mask);
+    %figure,imshow(segmentation);
+    
+    closedSegmentation = imclose(skinSegmentation,disk);
+    figure,imshow(closedSegmentation);
 end
