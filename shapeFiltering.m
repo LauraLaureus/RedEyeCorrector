@@ -1,18 +1,18 @@
 function [shapes] = shapeFiltering(labeledImg)
 
-    W = size(labeledImg,2);
-    H = size(labeledImg,1);
-    
-    kmin = 1/50;
-    kmax = 1/2;
-    
+     W = size(labeledImg,2);
+     H = size(labeledImg,1);
+%     
+%     kmin = 1/50;
+%     kmax = 1/2;
+%     
     props = regionprops(labeledImg,'Extrema');
     
     labelsToRemove = [];
     
     for i = 1:length(props)
         [w,h] = getDimensionOfArea(props(i).Extrema);
-        if ((w/h)> 5) || ((w/h) < 1/5) || (kmax*H < h) || (kmax*W < w)
+        if ((w/h)> 0.25*(W/H)) || ((w/h) < (W/H)*1.75) 
             labelsToRemove = [labelsToRemove i];
         end
     end
