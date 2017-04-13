@@ -46,9 +46,6 @@ for i = 1:size(detFaces,1)
     
     img = refillColor(intersectionMask,eyesRegion);
     figure,imshow(uint8(img)),title('Image');
-    
-    face = copyOverImg(face,img,eyesRect);
-    figure,imshow(uint8(face)),title('Cara');
 end
 result = I;
 
