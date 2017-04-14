@@ -1,12 +1,12 @@
 
-I = imread('./imgre/ojo3.jpg');
+I = imread('./imgre/ojo1.jpg');
 
 redMap = redness(I);
 q60 = quantile(reshape(redMap,1,[]),0.6);
 OriginalThresholded = threshold(redMap,q60);
 
 
-filtered = removeRedEyes('./imgre/ojo3.jpg');
+filtered = removeRedEyes('./imgre/ojo1.jpg');
 redMap2 = redness(filtered);
 FilteredThresholded = threshold(redMap2,q60);
 
@@ -23,7 +23,7 @@ disp(['Number pixels getting positive: ',num2str(npos)]);
 
 disk2 = strel('square',7);
 fpositive = imopen(positive,disk2);
-figure,imshow(ttpositive);
+figure,imshow(fpositive);
 
 fpos =  nnz(fpositive);
 disp(['Minimum number pixels getting false positive: ',num2str(fpos)]);

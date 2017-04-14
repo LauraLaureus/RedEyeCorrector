@@ -42,10 +42,10 @@ for i = 1:size(detFaces,1)
         clusterRedMap = reshape(clusters,size(redMap));
         h = histogram(clusterRedMap);
         clusterFrequencies = h.Values;
-        m = max(clusterFrequencies); %Black cluster
-        clusterFrequencies(clusterFrequencies == m) = [];
-        m = max(clusterFrequencies); %secondMode
-        clusters(clusters == m) = 0;  
+        m = max(clusterFrequencies);
+        clusterFRecuencies()
+        
+        
     end
     
     
