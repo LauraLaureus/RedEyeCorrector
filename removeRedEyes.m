@@ -49,6 +49,9 @@ for i = 1:size(detFaces,1)
     
     face = copyOverImg(face,img,eyesRect);
     figure,imshow(uint8(face)),title('Cara');
+
+    I = copyOverImg(I,face,detFaces(i,:));
+    figure,imshow(uint8(I)),title('I');
 end
 result = I;
 
