@@ -27,10 +27,10 @@ for i = 1:size(detFaces,1)
     mask = removeSkinModal(eyesRegionG);
     %se crea una máscara donde a 0 están todos los píxeles que se
     %encuentran debajo del valor del quantil 60%
-    redMask = threshold(redMap,quantile(reshape(redMap,1,[]),0.6));
+    redMask = threshold(redMap,quantile(reshape(redMap,1,[]),0.5));
     figure, imshow(redMask),title('Máscara roja');
     %se genera la máscara intersección de ambos
-    intersectionMask = imclose(mask,disk) .* imclose(redMask,disk);
+    intersectionMask = mask .* redMask;
     figure, imshow(intersectionMask),title('Máscara intersección');
     
     [lbls,l] = bwlabel(intersectionMask);
@@ -39,10 +39,11 @@ for i = 1:size(detFaces,1)
     else 
         shapes = intersectionMask;
     end
-    
+
     mask2 = uint8( im2bw(shapes,0.5));
     shapeFiltered = applyMask(double(eyesRegion),double(mask2));
     figure,imshow(uint8(shapeFiltered)),title('Máscara filtrada por forma');
+   
     
     img = refillColor(intersectionMask,eyesRegion);
     figure,imshow(uint8(img)),title('Image');

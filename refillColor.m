@@ -7,17 +7,7 @@ function [RGBc] = refillColor (mask,image)
     masked(:,:,3) = image(:,:,3).*uint8(~mask);
     
     g = masked (:,:,2);
-    b = masked (:,:,3);
-    
-%     gb = sum(reshape(g,1,[])+reshape(b,1,[]));
-%     
-%     Mean = gb/(2*nnz(~mask));
-%     
-%     r = mask;
-%     r(mask > 0) = Mean;
-%     g(mask > 0) = Mean;
-%     b(mask > 0) = Mean;
-%    
+    b = masked (:,:,3);    
     RGBc = image;
     
     for i =1:size(image,1)
