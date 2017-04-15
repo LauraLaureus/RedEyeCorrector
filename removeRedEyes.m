@@ -26,19 +26,15 @@ for i = 1:size(detFaces,1)
         eyesRect = [1 1 size(I,2) size(I,1) ];
         eyesRegion = I;
     else 
+        %se extrae la sección de la cara que tiene más probabilidad de tener
+        %los ojos
         face = imcrop(I,detFaces(i,:));
         eyesRect = calculateFrecuentEyeRegion(face);
         eyesRegion = imcrop(face,eyesRect);
     end
     
-    %se extrae la sección de la cara que tiene más probabilidad de tener
-    %los ojos
     
-    
-    if iImagesRequired
-        figure,imshow(eyesRegion),title('RegionOjos');
-    end
-    
+
     %se crea un mapa de "rojez"
     redMap = redness(eyesRegion);
     
@@ -47,59 +43,30 @@ for i = 1:size(detFaces,1)
     %piel
     eyesRegionG = imgaussfilt(eyesRegion,1);
     mask = removeSkinModal(eyesRegionG);
-    
-    if iImagesRequired
-        figure, imshow(mask),title('Máscara elimina la piel');
-    end
-    
+   
     
     %se crea una máscara donde a 0 están todos los píxeles que se
     %encuentran debajo del valor del quantil 60%
-    redMask = threshold(redMap,quantile(reshape(redMap,1,[]),0.5));
-    
-    if iImagesRequired
-        figure, imshow(redMask),title('Máscara roja');
-    end
-    
-%     lumMap = luminance(eyesRegion);
+    redMask = threshold(redMap,quantile(reshape(redMap,1,[]),0.6));
+
+    mask = imdilate(mask,disk);
+    redMask = imdilate(redMask,disk);
     
     %se genera la máscara intersección de ambos
-    intersectionMask = imclose(mask,disk) .* imclose(redMask,disk);
-    %intersectionMask = imopen(intersectionMask,disk);
+    intersectionMask =  mask .* redMask;
     
-    if iImagesRequired
-        figure, imshow(intersectionMask),title('Máscara intersección');
-    end
+    %se limpia la máscara intersección
+    intersectionMask = imerode(intersectionMask,disk);
     
-    [lbls,l] = bwlabel(imopen(intersectionMask,disk)); %imopen para quitar ruido
-    if l > 2
-        [shapes] = shapeFiltering(lbls);
-    else 
-        shapes = intersectionMask;
-    end
-
-    mask2 = uint8( im2bw(shapes,0.5));
-   
+    %se obtiene una máscara de lo que no son los ojos
+    NonEyesMask = imopen(intersectionMask,strel('square',round(size(intersectionMask,2)/12)));
     
-    if iImagesRequired
-        shapeFiltered = applyMask(double(eyesRegion),double(mask2));
-        figure,imshow(uint8(shapeFiltered)),title('Máscara filtrada por forma');
-    end
+    %se obtiene una segunda intersección 
+    mask2 = intersectionMask .* ~NonEyesMask;
     
-    img = imclose(mask2,disk);
-    img = refillColor(mask2,eyesRegion);
-    
-    
-    if iImagesRequired
-        figure,imshow(uint8(img)),title('Image');
-    end
-    
- 
+    img = refillColor(mask2,eyesRegion); 
     face = copyOverImg(face,img,eyesRect);
-    
-    if iImagesRequired
-        figure,imshow(uint8(face)),title('Cara');
-    end
+   
 
     if detFaces(1) > 0
         I = copyOverImg(I,face,detFaces(i,:));
@@ -108,7 +75,18 @@ for i = 1:size(detFaces,1)
     end
     
     if iImagesRequired
-        figure,imshow(uint8(I)),title('I');
+        figure,imshow(eyesRegion),title('Region de los Ojos');
+        figure,subplot(3,1,1), imshow(mask),title('Máscara elimina la piel');
+        subplot(3,1,2),imshow(redMask),title('Máscara roja');
+        subplot(3,1,3), imshow(intersectionMask),title('Máscara intersección');
+        figure, subplot(3,1,1), imshow(intersectionMask),title('Máscara intersección');
+        subplot(3,1,2), imshow(NonEyesMask),title('Máscara no ojos');
+        subplot(3,1,3), imshow(mask2),title('Máscara intersección 2');
+        figure,imshow(uint8(img)),title('Image');
+        if detFaces(1) > 0
+            figure,imshow(uint8(face)),title('Cara');
+            figure,imshow(uint8(I)),title('I');
+        end
     end
 end
 result = I;

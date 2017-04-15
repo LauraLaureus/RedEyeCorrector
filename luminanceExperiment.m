@@ -31,3 +31,6 @@ figure,imshow(Ia);
 
 Ih = histeq(lum);
 figure,imshow(Ih);
+
+Is = imadjust(lum,stretchlim(lum),[]);
+figure,imshow(Is);

@@ -40,8 +40,8 @@ function [w,h] = getDimensionOfArea(extrema)
     interpolatedTopLeftCorner = (extrema(8,:)+extrema(1,:))/2;
     interpolatedBottomRightCorner = (extrema(4,:)+extrema(5))/2;
     
-    w = interpolatedBottomRightCorner(1) - interpolatedTopLeftCorner(1);
-    h = interpolatedBottomRightCorner(2) - interpolatedTopLeftCorner(2);
+    w = interpolatedBottomRightCorner(2) - interpolatedTopLeftCorner(2);
+    h = interpolatedBottomRightCorner(1) - interpolatedTopLeftCorner(1);
 end
 
 function [shapes] =removeLabels(labeledImg,labelsToRemove)
