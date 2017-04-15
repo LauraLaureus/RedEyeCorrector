@@ -6,8 +6,6 @@ function [shapes] = shapeFiltering(labeledImg)
     kmin = 1/50;
     kmax = 1/20;
     
-    tolerance = 2;
-    
     %props = regionprops(labeledImg,'Extrema');
     props = regionprops(labeledImg,'MajorAxisLength','MinorAxisLength');
     
@@ -27,9 +25,7 @@ function [shapes] = shapeFiltering(labeledImg)
 %             labelsToRemove = [labelsToRemove i];
 %         end
         
-        if (props(i).MajorAxisLength / props(i).MinorAxisLength) > tolerance
-            labelsToRemove = [labelsToRemove i];
-        end
+        if props()
     
     end
     

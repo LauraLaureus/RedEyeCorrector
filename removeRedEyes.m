@@ -64,15 +64,17 @@ for i = 1:size(detFaces,1)
     %se obtiene una segunda intersección 
     mask2 = intersectionMask .* ~NonEyesMask;
     
+   
     img = refillColor(mask2,eyesRegion); 
     face = copyOverImg(face,img,eyesRect);
    
-
+    
     if detFaces(1) > 0
         I = copyOverImg(I,face,detFaces(i,:));
     else
         I = face;
     end
+    
     
     if iImagesRequired
         figure,imshow(eyesRegion),title('Region de los Ojos');
