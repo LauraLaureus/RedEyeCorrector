@@ -20,11 +20,20 @@ end
 
 for i = 1:size(detFaces,1)
     %se extrae la cara
-    face = imcrop(I,detFaces(i,:));
+    
+    if (detFaces(1) == 0)
+        face = I;
+        eyesRect = [1 1 size(I,2) size(I,1) ];
+        eyesRegion = I;
+    else 
+        face = imcrop(I,detFaces(i,:));
+        eyesRect = calculateFrecuentEyeRegion(face);
+        eyesRegion = imcrop(face,eyesRect);
+    end
+    
     %se extrae la sección de la cara que tiene más probabilidad de tener
     %los ojos
-    eyesRect = calculateFrecuentEyeRegion(face);
-    eyesRegion = imcrop(face,eyesRect);
+    
     
     if iImagesRequired
         figure,imshow(eyesRegion),title('RegionOjos');
@@ -33,26 +42,16 @@ for i = 1:size(detFaces,1)
     %se crea un mapa de "rojez"
     redMap = redness(eyesRegion);
     
-    %detect diferent types of red
-    h = histogram(redMap);
-    k = length(findpeaks(h.Values));
-    
-    if k > 1 
-        clusters  = kmeans(reshape(redMap,[],1),k+1); %añade el negro como cluster
-        clusterRedMap = reshape(clusters,size(redMap));
-        h = histogram(clusterRedMap);
-        clusterFrequencies = h.Values;
-        m = max(clusterFrequencies); %Black cluster
-        clusterFrequencies(clusterFrequencies == m) = [];
-        m = max(clusterFrequencies); %secondMode
-        clusters(clusters == m) = 0;  
-    end
-    
     
     %se crea una máscara donde a 0 están todos los píxeles que pueden ser
     %piel
     eyesRegionG = imgaussfilt(eyesRegion,1);
     mask = removeSkinModal(eyesRegionG);
+    
+    if iImagesRequired
+        figure, imshow(mask),title('Máscara elimina la piel');
+    end
+    
     
     %se crea una máscara donde a 0 están todos los píxeles que se
     %encuentran debajo del valor del quantil 60%
@@ -62,14 +61,17 @@ for i = 1:size(detFaces,1)
         figure, imshow(redMask),title('Máscara roja');
     end
     
+%     lumMap = luminance(eyesRegion);
+    
     %se genera la máscara intersección de ambos
-    intersectionMask = mask .* redMask;
+    intersectionMask = imclose(mask,disk) .* imclose(redMask,disk);
+    %intersectionMask = imopen(intersectionMask,disk);
     
     if iImagesRequired
         figure, imshow(intersectionMask),title('Máscara intersección');
     end
     
-    [lbls,l] = bwlabel(intersectionMask);
+    [lbls,l] = bwlabel(imopen(intersectionMask,disk)); %imopen para quitar ruido
     if l > 2
         [shapes] = shapeFiltering(lbls);
     else 
@@ -77,18 +79,22 @@ for i = 1:size(detFaces,1)
     end
 
     mask2 = uint8( im2bw(shapes,0.5));
-    shapeFiltered = applyMask(double(eyesRegion),double(mask2));
+   
     
     if iImagesRequired
+        shapeFiltered = applyMask(double(eyesRegion),double(mask2));
         figure,imshow(uint8(shapeFiltered)),title('Máscara filtrada por forma');
     end
     
-    img = refillColor(intersectionMask,eyesRegion);
+    img = imclose(mask2,disk);
+    img = refillColor(mask2,eyesRegion);
+    
     
     if iImagesRequired
         figure,imshow(uint8(img)),title('Image');
     end
     
+ 
     face = copyOverImg(face,img,eyesRect);
     
     if iImagesRequired

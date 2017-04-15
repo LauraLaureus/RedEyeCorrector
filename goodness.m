@@ -1,4 +1,4 @@
-function goodness(filePath)
+function[npos,fpos] = goodness(filePath)
 I = imread(filePath);
 
 redMap = redness(I);

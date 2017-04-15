@@ -4,7 +4,7 @@ function [shapes] = shapeFiltering(labeledImg)
      H = size(labeledImg,1);
 %     
     kmin = 1/50;
-    kmax = 1/12;
+    kmax = 1/2;
     
     props = regionprops(labeledImg,'Extrema');
     
@@ -16,11 +16,16 @@ function [shapes] = shapeFiltering(labeledImg)
             labelsToRemove = [labelsToRemove i];
             continue
         end
+        if kmax*W < w || kmin*W > w
+            labelsToRemove = [labelsToRemove i];
+            continue
+        end
         
-%         if kmax*W < w || kmin*W > w
-%             labelsToRemove = [labelsToRemove i];
-%             continue
-%         end
+        if kmax*H < h || kmin*H > h
+            labelsToRemove = [labelsToRemove i];
+            continue
+        end
+        
     end
     
     if length(labelsToRemove) > 0
